@@ -21,54 +21,39 @@ T0 = 10                 # mean surface temperature in Celsius
 D = -(1 / a1) * log(0.001)  # max depth
 n = 501                 # no of points in the z direction
 
+number_of_points=int(P2/1000)
 
 fig, ax=subplots()
-timedata, temperaturedata=[],[]
-curve, =plot([],[], 'ro')
+timedata, temperaturedata1, temperaturedata2=[],[],[]
+curve1, = plot([],[], 'ro')  
+curve2, = plot([],[], 'b-')
+
 
 def update(frame):
   tim=frame
-  depth=1
   timedata.append(tim)
-  temperaturedata.append(T(depth,tim))
-  curve.set_data(timedata, temperaturedata)
-  return curve,
+  temperaturedata1.append(T(1,tim))
+  temperaturedata2.append(T(2,tim))
+  curve1.set_data(timedata, temperaturedata1)
+  curve2.set_data(timedata, temperaturedata2)
+  return curve1, curve2
 
 
+def init():
+    ax.set_xlim(0,tmax)
+    ax.set_ylim(4, 16)
+    return curve1, curve2
 
-# def animate(tmax, dt, x, function, ymin, ymax, t0=0,
-#             xlabel='x', ylabel='y', filename='tmp_'):
-#     t = t0
-#     counter = 0
-#     while t <= tmax:
-#         y = function(x, t)
-#         plot(x, y,
-#              axis=[x[0], x[-1], ymin, ymax],
-#              title='time-%4.2f yr' % (t / 60. / 60 / 365 / 24),
-#              xlabel=xlabel, ylabel=ylabel,
-#              savefig=filename + '%04d.png' % counter,
-#              show=False)
-#         t += dt
-#         counter += 1
 
 
 def T(z, t):
     # T0, A, k, and omega are global variables
     return T0 + A1 * exp(-a1 * z) * cos(omega1 * t - a1 * z) + \
         A2 * exp(-a2 * z) * cos(omega2 * t - a2 * z)
+print (T0-A1*exp(-a1)-A2*exp(-a2))
 
-frames=linspace(t0, tmax, int(P2))
-ani=FuncAnimation(fig, update, frames=frames, blit=True)
+frames=linspace(t0, tmax, number_of_points)
+print(max(T(2,frames)))
+print(min(T(2,frames)))
+ani=FuncAnimation(fig, update, frames=frames,init_func=init, blit=True)
 show()
-
-# set T0, A, k, omega, D, n, tmax, dt
-#z = linspace(0, D, n)
-# animate(tmax, dt, z, T, T0 - A2 - A1, T0 + A2 + A1, 0, 'z', 'T')
-
-# movie('tmp_*.png', encoder='convert', fps=6, outputfile='tmp_heatwave.gif')
-
-# import glob
-# import os
-# # Remove frames
-# for filename in glob.glob('tmp_*.png'):
-#     os.remove(filename)
